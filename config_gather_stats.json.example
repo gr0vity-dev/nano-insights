@@ -1,0 +1,5 @@
+{"nodes" : [
+    {"name" : "node_with_auth", "rpc_url" : "https://example.com/nanoprxy", "rpc_auth" : {"user" : "user", "password" : "p@ssw0rd"}},
+    {"name" : "pr_node", "rpc_url" : "http://localhost:7076", "is_pr" : true },
+    {"name" : "non_voting_node", "rpc_url" : "http://127.0.0.1:54000", "is_pr" : false }   
+]}
