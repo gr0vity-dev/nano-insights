@@ -1,7 +1,11 @@
-# nano-stats
-Export nano_node stats every 5s in json format. The main purpose is to import these stats into elastic stash
+# nano-insights
+Export nano_node stats every 5s in json format. 
 
-prerequisites : 
+The main purpose is to import the generated stats into elastic stack
+
+Main metrics : AEC overlap, vote hinting, stats counters
+
+## Prerequisites : 
 * python3
 * nano_node(s) with rpc enabled
 
@@ -19,9 +23,9 @@ nano_node needs rpc access to the folling actions :
 <code>$ ./gather_stats_kibana.py</code>
 
 #### Export all stats :
-Rename <code>config_gather_stats.json.example</code> to <code>config_gather_stats.json</code>
-<code>$ ./setup_venv.sh</code>
-All ouput is found in <code>log/.json</code>
+* Rename <code>config_gather_stats.json.example</code> to <code>config_gather_stats.json</code>
+* <code>$ ./setup_venv.sh</code>
+* All ouput is found in <code>log/{day_of_year}_run_stats_kibana.log</code>
 
 
 #### Optional : Delete virtual python environment
