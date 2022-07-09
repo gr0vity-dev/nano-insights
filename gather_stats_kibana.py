@@ -161,11 +161,11 @@ class NanoStats():
         return flat_json
          
     def get_nodes_stat_by_key(self, node_stats, key, pr_only = False) :
-        nodes_stat = []
-        for node_stats in node_stats.values() :
+        nodes_stat = {}
+        for node_stats_key, node_stats in node_stats.items() :
             if pr_only :
                 if "_node_name" in node_stats and node_stats["_node_name"] not in self.get_rpcs_pr(name_only=True) : continue
-            if key in node_stats : nodes_stat.append( node_stats[key])
+            if key in node_stats : nodes_stat[node_stats_key] = node_stats[key]
         return nodes_stat
     
 
@@ -228,13 +228,13 @@ class NanoStats():
 
         
         delta_stats =  self.get_nodes_stat_by_key(node_stats, "delta")
-        aecs = [stats["aecs"]for stats in delta_stats]
+        aecs = [stats["aecs"]for stats in delta_stats.values()]
         union = aecs[0]
         aec_avg_size = sum(len(x) for x in aecs) / len(aecs) 
 
         delta_stats_pr =  self.get_nodes_stat_by_key(node_stats, "delta", pr_only=True)
         if len(delta_stats_pr) > 0 :
-            aecs_pr = [stats["aecs"]for stats in delta_stats_pr]
+            aecs_pr = [stats["aecs"]for stats in delta_stats_pr.values()]
             union_pr = aecs_pr[0]
             aec_pr_avg_size = sum(len(x) for x in aecs_pr) / len(aecs_pr)
         else :
@@ -270,15 +270,16 @@ class NanoStats():
 
         block_count_cemented = self.get_nodes_stat_by_key(nodes_stats, "block_count_cemented")           
         block_count_count = self.get_nodes_stat_by_key(nodes_stats, "block_count_count")
+        keys = [ x for x in nodes_stats.keys() ] #returns list of node_stats
         
         for i in range(0, len(nodes_stats)) : 
             #for i in range(0, len(block_count_cemented)) :
-            node_stats[i][f"calc_uncemented"] = round(max(block_count_count) - block_count_cemented[i],2)
-            node_stats[i][f"calc_uncemented_node_view"] = round(block_count_count[i] - block_count_cemented[i],2) 
-            node_stats[i][f"calc_sync_block_count"] = round(block_count_count[i]/max(block_count_count) *100,2 )
-            node_stats[i][f"calc_sync_cemented"] = round(block_count_cemented[i]/max(block_count_cemented) *100,2 )
-            node_stats[i][f"calc_percent_cemented"] = round(block_count_cemented[i]/max(block_count_count) *100,2 )
-            node_stats[i][f"calc_missing_cemented"] = round(max(block_count_cemented) - block_count_cemented[i],2)
+            node_stats[i][f"calc_uncemented"] = round(max(block_count_count.values()) - block_count_cemented[keys[i]],2)
+            node_stats[i][f"calc_uncemented_node_view"] = round(block_count_count[keys[i]] - block_count_cemented[keys[i]],2) 
+            node_stats[i][f"calc_sync_block_count"] = round(block_count_count[keys[i]]/max(block_count_count.values()) *100,2 )
+            node_stats[i][f"calc_sync_cemented"] = round(block_count_cemented[keys[i]]/max(block_count_cemented.values()) *100,2 )
+            node_stats[i][f"calc_percent_cemented"] = round(block_count_cemented[keys[i]]/max(block_count_count.values()) *100,2 )
+            node_stats[i][f"calc_missing_cemented"] = round(max(block_count_cemented.values()) - block_count_cemented[keys[i]],2)
             node_stats[i][f"calc_timestamp"] = timestamp
             
 
@@ -323,10 +324,13 @@ class NanoStats():
                             
         keys = [ x for x in current.keys() ] #returns list of node_stats
 
-        for i in range(0, self.get_node_count(current)) :  
+        for i in range(0, self.get_node_count(current)) :
+            if keys[i] not in previous :               
+                print(f'skip {keys[i]} : not in previous stats')
+                continue
 
-            current[keys[i]]["calc_delta_bps_last_5s"] = (block_count_count_current[i] - block_count_count_previous[i]) / interval  #calc bps   
-            current[keys[i]]["calc_delta_cps_last_5s"] = (block_count_cemented_current[i] - block_count_cemented_previous[i]) / interval #calc cps
+            current[keys[i]]["calc_delta_bps_last_5s"] = (block_count_count_current[keys[i]] - block_count_count_previous[keys[i]]) / interval  #calc bps   
+            current[keys[i]]["calc_delta_cps_last_5s"] = (block_count_cemented_current[keys[i]] - block_count_cemented_previous[keys[i]]) / interval #calc cps
 
             if "delta" in current[keys[i]] :
                 #calc churn
@@ -422,11 +426,12 @@ def main():
     args = parse_args() 
     # if args.version is None :
     #     raise Exception("Please specify a nano_node version for logging purpose")   
+    
     interval = 5  
     wait_mod(interval=interval)  
     
     previous_nodes_stats = None
-    while True :        
+    while True :
         
         t1 = run_threaded( s.compare_active_elections,  kwargs={"previous_nodes_stats" : previous_nodes_stats, "nano_node_version":  args.version,  "interval": interval})
         previous_nodes_stats = t1.join()       
