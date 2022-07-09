@@ -227,32 +227,32 @@ class NanoStats():
         #####AEC overlap#######old screenshots
 
         
-        delta_stats =  self.get_nodes_stat_by_key(node_stats, "delta")
+        delta_stats = self.get_nodes_stat_by_key(node_stats, "delta")
         aecs = [stats["aecs"]for stats in delta_stats.values()]
         union = aecs[0]
         aec_avg_size = sum(len(x) for x in aecs) / len(aecs) 
-
-        delta_stats_pr =  self.get_nodes_stat_by_key(node_stats, "delta", pr_only=True)
-        if len(delta_stats_pr) > 0 :
-            aecs_pr = [stats["aecs"]for stats in delta_stats_pr.values()]
-            union_pr = aecs_pr[0]
-            aec_pr_avg_size = sum(len(x) for x in aecs_pr) / len(aecs_pr)
-        else :
-            print("Config file holds no PRs (is_pr either missing or false on all nodes)")
-
-        max_overlap = 0
-        
-        #AEC overlap for all PRs
-        for aec in aecs_pr :
-            union_pr = union_pr.intersection(aec)
-            union_length = len(union_pr)            
-        node_stats["shared_stats"]["calc_overlap_prs"] = self.get_overlap_percent(union_length, aec_pr_avg_size)
 
         for aec in aecs : 
             union = union.intersection(aec)
             union_length = len(union)
         node_stats["shared_stats"]["calc_overlap_all_nodes"] = self.get_overlap_percent(union_length, aec_avg_size)
 
+        delta_stats_pr =  self.get_nodes_stat_by_key(node_stats, "delta", pr_only=True)
+        if len(delta_stats_pr) > 0 :
+            aecs_pr = [stats["aecs"]for stats in delta_stats_pr.values()]
+            union_pr = aecs_pr[0]
+            aec_pr_avg_size = sum(len(x) for x in aecs_pr) / len(aecs_pr)
+
+             #AEC overlap for all PRs
+            for aec in aecs_pr :
+                union_pr = union_pr.intersection(aec)
+                union_length = len(union_pr)            
+            node_stats["shared_stats"]["calc_overlap_prs"] = self.get_overlap_percent(union_length, aec_pr_avg_size)
+        else :
+            print("Config file holds no PRs (is_pr either missing or false on all nodes)")
+      
+
+        max_overlap = 0   
         #max AEC overlap of 2 PRs
         for i in range(0, len(aecs)):
             for j in range(i, len(aecs)):
