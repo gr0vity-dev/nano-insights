@@ -1,0 +1,36 @@
+version: '3'
+services:
+
+  nanobeta:
+    image: nanocurrency/nano-beta:latest
+    ulimits:
+      nofile: 65535
+    container_name : nanobeta
+    restart: unless-stopped
+    ports:
+     - 54000:54000/udp
+     - 54000:54000
+     - '127.0.0.1:55000:55000'
+     - '127.0.0.1:57000:57000'
+    volumes:
+    - ./LMDB:/root/NanoBeta
+    networks:
+    - nano-beta
+
+  nano_insights:
+    build: .
+    container_name: nano_insights    
+    restart: unless-stopped    
+    volumes:
+    - ./log:/app/log
+    - ./config_gather_stats.json:/app/config_gather_stats.json
+    network:
+      nano-beta
+
+
+
+
+networks:
+  nano-beta:
+    name: nano-beta
+    driver: bridge

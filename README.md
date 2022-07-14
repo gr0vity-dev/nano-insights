@@ -5,7 +5,11 @@ The main purpose is to import the generated stats into elastic stack
 
 Main metrics : AEC overlap, vote hinting, stats counters
 
-## Prerequisites : 
+## Dockerized version :
+docker-compose up -d
+(spins up nanobeta node and nano_insights container)
+
+## Non dockerized prerequisites : 
 * python3
 * nano_node(s) with rpc enabled
 
