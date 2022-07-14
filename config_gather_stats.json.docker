@@ -1,0 +1,3 @@
+{"nodes" : [
+    {"name" : "nanobeta", "rpc_url" : "nanobeta:55000", "is_pr" : false} 
+]}
