@@ -1,3 +1,4 @@
 log/*.log
 venv_nano_stats/
-config_gather_stats.json
+config*.json
+docker-compose.yml
