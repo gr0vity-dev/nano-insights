@@ -295,6 +295,7 @@ class NanoStats():
         node_stats["shared_stats"][
             "calc_overlap_all_nodes"] = self.get_overlap_percent(
                 union_length, aec_avg_size)
+        node_stats["shared_stats"]["calc_overlap_all_nodes_abs"] = union_length
 
         delta_stats_pr = self.get_nodes_stat_by_key(node_stats,
                                                     "delta",
