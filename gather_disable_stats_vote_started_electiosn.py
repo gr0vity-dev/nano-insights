@@ -13,10 +13,25 @@ import json
 import traceback
 import aiohttp
 import asyncio
+from src.simple_ws import SimpleWs
+import secrets
 
 #nodes_stat returns a list with 1 stat for all nodes
 #node_stats retruns a dict with all stats for 1 node
 #nodes_stats retruns a list with all stats for all nodes
+
+#ws0 = SimpleWs("ws://192.168.178.88:47000", "nl_gen", "V24DB20", "vote")
+# ws1 = SimpleWs("ws://192.168.178.88:47001", "nl_pr1", "V24DB20", "vote")
+# ws2 = SimpleWs("ws://192.168.178.88:47002", "nl_pr2", "V24DB20", "vote")
+# ws3 = SimpleWs("ws://192.168.178.88:47003", "nl_pr3", "V24DB20", "vote")
+
+ws1 = SimpleWs("ws://192.168.178.88:47001", "nl_pr1", "V24DB20",
+               "started_election")
+ws2 = SimpleWs("ws://192.168.178.88:47002", "nl_pr2", "V24DB20",
+               "started_election")
+ws3 = SimpleWs("ws://192.168.178.88:47003", "nl_pr3", "V24DB20",
+               "started_election")
+run_id = secrets.token_hex(10)
 
 
 def wait_mod(interval=5):
@@ -208,10 +223,7 @@ class NanoStats():
         for key, value in flat_json.items():
             if key in skip_keys: continue
             try:
-                #Kibana fails with huge numbers. cant store 64bit
-                divider = 10**30 if float(value) > 10**30 else 1
-                flat_json[key] = float(value) / divider
-
+                flat_json[key] = float(value)
             except:
                 pop_keys.append(key)
 
@@ -273,7 +285,79 @@ class NanoStats():
 
     #add 1 line per node + 1 line for shared stats
         for node_stats in nodes_stats_copy.values():
-            self.conf_rw.append_json(self.get_path(filename), node_stats)
+            #TODO: ENABLE THIS LINE           #self.conf_rw.append_json(self.get_path(filename), node_stats)
+            pass
+
+    def map_aec_content_to_votes(self, hash_set, ws, name):
+
+        hash_list = [x for x in hash_set]
+        res_ws = ws.append_votes_to_hash_list(hash_list)
+        with open(
+                f"./{datetime.now().hour}|{datetime.now().minute}|{datetime.now().second}_{name}_vote_stats.json",
+                "w") as f:
+            json.dump(res_ws, f)
+
+    def write_overlapping_elections(self, hash_set):
+        if hash_set == set():
+            print(">>DEBUG", "set empty")
+            return
+        with open(
+                f"./{datetime.now().hour}|{datetime.now().minute}|{datetime.now().second}_overlapping_elections.json",
+                "w") as f:
+            json.dump(list(hash_set), f)
+
+    def add_websocket_data_to_overlap(self, hash_set):
+        if hash_set == set():
+            print(">>DEBUG", "set empty")
+            return
+
+        hash_list = [x for x in hash_set]
+        res_ws1 = ws1.append_votes_to_hash_list(hash_list)
+        res_ws2 = ws2.append_votes_to_hash_list(hash_list)
+        res_ws3 = ws3.append_votes_to_hash_list(hash_list)
+        with open(
+                f"./{datetime.now().hour}|{datetime.now().minute}|{datetime.now().second}_ws1_hash_stats.json",
+                "w") as f:
+            json.dump(res_ws1, f)
+        with open(
+                f"./{datetime.now().hour}|{datetime.now().minute}|{datetime.now().second}_ws2_hash_stats.json",
+                "w") as f:
+            json.dump(res_ws2, f)
+        with open(
+                f"./{datetime.now().hour}|{datetime.now().minute}|{datetime.now().second}_ws3_hash_stats.json",
+                "w") as f:
+            json.dump(res_ws3, f)
+
+    def map_aec_overlap_to_elections(self, hash_set):
+        if hash_set == set():
+            print(">>DEBUG", "set empty")
+            return
+
+        hash_list = [x for x in hash_set]
+        hash_list.append("total_elections")
+        res_ws1 = ws1.append_election_to_hash_list(hash_list)
+        res_ws2 = ws2.append_election_to_hash_list(hash_list)
+        res_ws3 = ws3.append_election_to_hash_list(hash_list)
+        with open(
+                f"./{datetime.now().hour}|{datetime.now().minute}|{datetime.now().second}_ws1_election_stats.json",
+                "w") as f:
+            json.dump(res_ws1, f)
+        with open(
+                f"./{datetime.now().hour}|{datetime.now().minute}|{datetime.now().second}_ws2_election_stats.json",
+                "w") as f:
+            json.dump(res_ws2, f)
+        with open(
+                f"./{datetime.now().hour}|{datetime.now().minute}|{datetime.now().second}_ws3_election_stats.json",
+                "w") as f:
+            json.dump(res_ws3, f)
+
+    def log_started_elections(self):
+        print("=" * 64)
+        print("=" * 32, run_id)
+        print("=" * 64)
+        ws1.log_started_elections(run_id)
+        ws2.log_started_elections(run_id)
+        ws3.log_started_elections(run_id)
 
     def extend_node_stats_shared_stats(
             self, node_stats, nano_nodes_version,
@@ -288,10 +372,7 @@ class NanoStats():
         #####AEC overlap#######old screenshots
 
         delta_stats = self.get_nodes_stat_by_key(node_stats, "delta")
-        print("delta_stats", delta_stats)
-
         aecs = [stats["aecs"] for stats in delta_stats.values()]
-
         union = aecs[0]
         aec_avg_size = sum(len(x) for x in aecs) / len(aecs)
 
@@ -322,20 +403,29 @@ class NanoStats():
             print(
                 "Config file holds no PRs (is_pr either missing or false on all nodes)"
             )
+        self.write_overlapping_elections(union_pr)
+        # self.add_websocket_data_to_overlap(union)
+        # if union_length == 0:
+        #     for count, aec in enumerate(aecs_pr):
+        #         if len(aec) == 0: continue
+        #         if count == 0: self.map_aec_content_to_votes(aec, ws1, "ws1")
+        #         if count == 1: self.map_aec_content_to_votes(aec, ws2, "ws2")
+        #         if count == 2: self.map_aec_content_to_votes(aec, ws3, "ws3")
+
+        # #self.map_aec_overlap_to_elections(union)
 
         max_overlap = 0
-        #max AEC overlap of 2 PRs. Limit to 4 because log size increases n^2
+        #max AEC overlap of 2 PRs
         for i in range(0, len(aecs)):
             for j in range(i, len(aecs)):
                 if i == j: continue  #no need to compare to itself
                 overlap_pr_i_j = len(aecs[i].intersection(aecs[j]))
                 aec_avg_size_i_j = (len(aecs[i]) + len(aecs[j])) / 2
-                if i < 4 and j < 4:
-                    node_stats["shared_stats"][
-                        f'calc_{i}_{j}_abs'] = overlap_pr_i_j
-                    node_stats["shared_stats"][
-                        f'calc_{i}_{j}_perc'] = self.get_overlap_percent(
-                            overlap_pr_i_j, aec_avg_size_i_j)
+                node_stats["shared_stats"][
+                    f'calc_{i}_{j}_abs'] = overlap_pr_i_j
+                node_stats["shared_stats"][
+                    f'calc_{i}_{j}_perc'] = self.get_overlap_percent(
+                        overlap_pr_i_j, aec_avg_size_i_j)
                 max_overlap = max(
                     max_overlap,
                     self.get_overlap_percent(overlap_pr_i_j, aec_avg_size_i_j))
@@ -394,9 +484,12 @@ class NanoStats():
                         node_stats[node_name], response)
                 elif action == "confirmation_active":
                     confirmations_key = "confirmation_active_confirmations"
+                    #confirmations_key = "confirmation_active_blocks"
                     #convert to integer except "confirmations"
                     for key, value in self.values_to_integer(
-                            response, skip_keys=["confirmations"]).items():
+                            #response, skip_keys=["blocks"]).items():
+                            response,
+                            skip_keys=["confirmations"]).items():
                         node_stats[node_name][f'{action}_{key}'] = value
                     #convert "confirmations" to set()
                     if node_stats[node_name][confirmations_key] == '':
@@ -543,6 +636,7 @@ class NanoStats():
         self.calc_delta_stats(current_nodes_stats, previous_nodes_stats,
                               interval)
         self.log_file_kibana(current_nodes_stats)
+        self.log_started_elections()
         return current_nodes_stats
 
 
@@ -602,7 +696,7 @@ def main():
                               "nano_node_version": args.version,
                               "interval": interval
                           })
-        previous_nodes_stats = t1.join(timeout=5)
+        previous_nodes_stats = t1.join(timeout=300)
         if previous_nodes_stats is None:
             print(">>> WARNING: compare_active_elections TIMEOUT")
         wait_mod(interval=interval)

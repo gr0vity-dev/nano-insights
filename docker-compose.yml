@@ -26,6 +26,7 @@ services:
       - ./config_gather_stats-nl.json:/app/config_gather_stats.json
     networks:
       - nano-beta
+      - nano-local
 
   nano_insights_bootstrap_legacy:
     build: .
@@ -51,4 +52,8 @@ networks:
   nano-beta:
     name: nano-beta
     driver: bridge
+    external: true
+  nano-local:
+    name: ns_nano-local
+    driver: brdige
     external: true

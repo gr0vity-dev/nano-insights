@@ -1,2 +1,4 @@
 aiohttp
-
+websocket-client==1.4.1
+numpy
+pandas

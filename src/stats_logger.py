@@ -536,10 +536,13 @@ class WebsocketStartedElectionStats(StatsLogger):
         print(">>>>DEBUG", self.node_name, "started_elections:",
               len(self.hash_stats["blocks"]))
 
-        dict_copy = self.write_logrunning_elections(run_id)
+        #dict_copy = self.write_logrunning_elections(run_id)
 
         if write_to_db:
             if len(self.hash_stats["blocks"]) >= log_at_count:
+                self.lock.acquire()
+                dict_copy = deepcopy(self.hash_stats["blocks"])
+                self.lock.release()
                 nano_sql = NanoSql()
                 #dict_copy = deepcopy(self.hash_stats["blocks"])
                 for block_hash, stats in dict_copy.items():
