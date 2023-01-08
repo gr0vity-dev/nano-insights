@@ -288,7 +288,6 @@ class NanoStats():
         #####AEC overlap#######old screenshots
 
         delta_stats = self.get_nodes_stat_by_key(node_stats, "delta")
-        print("delta_stats", delta_stats)
 
         aecs = [stats["aecs"] for stats in delta_stats.values()]
 
