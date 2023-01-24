@@ -15,7 +15,7 @@
         },
         {
             "name": "non_voting_node",
-            "rpc_url": "http://127.0.0.1:54000",
+            "rpc_url": "http://127.0.0.1:55000",
             "is_pr": false
         }
     ],
