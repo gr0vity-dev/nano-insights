@@ -1,10 +1,65 @@
 {
     "nodes": [
         {
-            "name": "nanobeta",
-            "rpc_url": "nanobeta:55000",
+            "name": "nl_genesis",
+            "rpc_url": "http://ns_genesis:17075",
             "is_pr": false
+        },
+        {
+            "name": "nl_pr1",
+            "rpc_url": "http://ns_pr1:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr2",
+            "rpc_url": "http://1ns_pr2:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr3",
+            "rpc_url": "http://ns_pr3:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr4",
+            "rpc_url": "http://ns_pr4:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr5",
+            "rpc_url": "http://ns_pr5:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr6",
+            "rpc_url": "http://ns_pr6:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr7",
+            "rpc_url": "http://ns_pr7:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr8",
+            "rpc_url": "http://ns_pr8:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr9",
+            "rpc_url": "http://ns_pr9:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr10",
+            "rpc_url": "http://ns_pr10:17075",
+            "is_pr": true
+        },
+        {
+            "name": "nl_pr20",
+            "rpc_url": "http://ns_pr20:17075",
+            "is_pr": true
         }
     ],
-    "source": "default"
+    "source": "integration-testing"
 }

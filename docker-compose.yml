@@ -1,0 +1,15 @@
+version: '3'
+services:
+  nano_insights_bootstrap_ascending:
+    build: .
+    container_name: nano_insights_bootstrap_ascending
+    restart: unless-stopped
+    volumes:
+      - ./log:/app/log
+      - ./config_gather_stats-bootstrap_ascending.json:/app/config_gather_stats.json
+
+networks:
+  nano-local:
+    name: ns_nano-local
+    driver: brdige
+    external: true
