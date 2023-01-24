@@ -18,5 +18,6 @@
             "rpc_url": "http://127.0.0.1:54000",
             "is_pr": false
         }
-    ]
+    ],
+    "source": "default"
 }
