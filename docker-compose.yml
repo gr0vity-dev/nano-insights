@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./log:/app/log
-      - ./config_gather_stats.json.example:/app/config_gather_stats.json
+      - ./config_gather_stats.json.docker:/app/config_gather_stats.json
 
 networks:
   nano-local:
