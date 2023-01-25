@@ -14,4 +14,4 @@ networks:
   nano-local:
     name: ns_nano-local
     driver: brdige
-    external: true
+    #external: true
