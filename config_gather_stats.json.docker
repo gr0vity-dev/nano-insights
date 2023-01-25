@@ -12,7 +12,7 @@
         },
         {
             "name": "nl_pr2",
-            "rpc_url": "http://1ns_pr2:17075",
+            "rpc_url": "http://ns_pr2:17075",
             "is_pr": true
         },
         {
