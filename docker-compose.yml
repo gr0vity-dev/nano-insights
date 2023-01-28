@@ -7,11 +7,13 @@ services:
     volumes:
       - ./log:/app/log
       - ./config_gather_stats.json.docker:/app/config_gather_stats.json
-    networks:
-      - nano-local
 
-networks:
-  nano-local:
-    name: ns_nano-local
-    driver: brdige
-    #external: true
+## Remove network! in config, use docker gateway as ip_address
+#     networks:
+#       - nano-local
+
+# networks:
+#   nano-local:
+#     name: ns_nano-local
+#     driver: brdige
+#     #external: true
