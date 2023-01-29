@@ -106,7 +106,8 @@ class ParallelPost():
                         try:
                             async with session.post(url=el["url"],
                                                     json=el["request"],
-                                                    ssl=False) as response:
+                                                    ssl=False,
+                                                    timeout=1) as response:
                                 obj = {
                                     "response": json.loads(await
                                                            response.read())
